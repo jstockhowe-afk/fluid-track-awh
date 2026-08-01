@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/machine.dart';
-import '../services/machine_service.dart';
+import '../repositories/machine_repository.dart';
 import '../widgets/machine_card.dart';
 import 'machine_detail_screen.dart';
 
@@ -13,7 +13,7 @@ class MachineScreen extends StatefulWidget {
 }
 
 class _MachineScreenState extends State<MachineScreen> {
-  final MachineService _machineService = MachineService();
+  final MachineRepository _machineRepository = MachineRepository();
 
   late Future<List<Machine>> _machinesFuture;
 
@@ -24,7 +24,7 @@ class _MachineScreenState extends State<MachineScreen> {
   }
 
   void _loadMachines() {
-    _machinesFuture = _machineService.getMachines();
+  _machinesFuture = _machineRepository.getMachines();
   }
 
   Future<void> _refresh() async {
@@ -38,6 +38,8 @@ class _MachineScreenState extends State<MachineScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Maschinen"),
+        backgroundColor: Colors.indigo,
+        foregroundColor: Colors.white,
       ),
       body: FutureBuilder<List<Machine>>(
         future: _machinesFuture,
@@ -52,6 +54,7 @@ class _MachineScreenState extends State<MachineScreen> {
             return Center(
               child: Text(
                 "Fehler: ${snapshot.error}",
+                textAlign: TextAlign.center,
               ),
             );
           }
@@ -60,13 +63,17 @@ class _MachineScreenState extends State<MachineScreen> {
 
           if (machines.isEmpty) {
             return const Center(
-              child: Text("Keine Maschinen vorhanden."),
+              child: Text(
+                "Keine Maschinen vorhanden.",
+                style: TextStyle(fontSize: 18),
+              ),
             );
           }
 
           return RefreshIndicator(
             onRefresh: _refresh,
             child: ListView.builder(
+              padding: const EdgeInsets.symmetric(vertical: 8),
               itemCount: machines.length,
               itemBuilder: (context, index) {
                 final machine = machines[index];
@@ -83,7 +90,9 @@ class _MachineScreenState extends State<MachineScreen> {
                       ),
                     );
 
-                    _refresh();
+                    if (mounted) {
+                      _refresh();
+                    }
                   },
                 );
               },
