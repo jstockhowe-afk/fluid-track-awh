@@ -7,7 +7,7 @@ class Machine {
   final String hydraulicOil;
   final String guidewayOil;
   final String coolant;
-
+  final double coolantConcentration;
   final int hydraulicTank;
   final int coolantTank;
 
@@ -22,6 +22,7 @@ class Machine {
     this.hydraulicOil = '',
     this.guidewayOil = '',
     this.coolant = '',
+    this.coolantConcentration = 0,
     this.hydraulicTank = 0,
     this.coolantTank = 0,
     this.qrCode = '',
@@ -37,6 +38,7 @@ class Machine {
       'hydraulicOil': hydraulicOil,
       'guidewayOil': guidewayOil,
       'coolant': coolant,
+      'coolantConcentration': coolantConcentration,
       'hydraulicTank': hydraulicTank,
       'coolantTank': coolantTank,
       'qrCode': qrCode,
@@ -53,6 +55,8 @@ class Machine {
       hydraulicOil: map['hydraulicOil'] ?? '',
       guidewayOil: map['guidewayOil'] ?? '',
       coolant: map['coolant'] ?? '',
+      coolantConcentration:
+           (map['coolantConcentration'] ?? 0).toDouble(),
       hydraulicTank: map['hydraulicTank'] ?? 0,
       coolantTank: map['coolantTank'] ?? 0,
       qrCode: map['qrCode'] ?? '',
@@ -68,6 +72,7 @@ class Machine {
     String? hydraulicOil,
     String? guidewayOil,
     String? coolant,
+    double? coolantConcentration,
     int? hydraulicTank,
     int? coolantTank,
     String? qrCode,
@@ -81,6 +86,8 @@ class Machine {
       hydraulicOil: hydraulicOil ?? this.hydraulicOil,
       guidewayOil: guidewayOil ?? this.guidewayOil,
       coolant: coolant ?? this.coolant,
+      coolantConcentration:
+        coolantConcentration ?? this.coolantConcentration,
       hydraulicTank: hydraulicTank ?? this.hydraulicTank,
       coolantTank: coolantTank ?? this.coolantTank,
       qrCode: qrCode ?? this.qrCode,

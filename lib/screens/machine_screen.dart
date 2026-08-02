@@ -26,7 +26,7 @@ class _MachineScreenState extends State<MachineScreen> {
   void _loadMachines() {
   _machinesFuture = _machineRepository.getMachines();
   }
-
+  
   Future<void> _refresh() async {
     setState(() {
       _loadMachines();

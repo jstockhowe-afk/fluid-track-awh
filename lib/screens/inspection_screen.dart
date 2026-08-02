@@ -1,33 +1,35 @@
 import 'package:flutter/material.dart';
-
+import '../widgets/inspection_header.dart';
+import '../widgets/inspection_info_card.dart';
 import '../models/machine.dart';
 import '../models/oil_entry.dart';
 import '../services/oil_entry_service.dart';
+import '../widgets/quantity_selector.dart';
+import '../widgets/number_input_card.dart';
+import '../widgets/remark_card.dart';
+import '../widgets/primary_button.dart';
 
-class OilEntryScreen extends StatefulWidget {
+class InspectionScreen extends StatefulWidget {
   final Machine machine;
 
-  const OilEntryScreen({
+  const InspectionScreen({
     super.key,
     required this.machine,
   });
 
   @override
-  State<OilEntryScreen> createState() => _OilEntryScreenState();
+  State<InspectionScreen> createState() => _InspectionScreenState();
 }
 
-class _OilEntryScreenState extends State<OilEntryScreen> {
+class _InspectionScreenState extends State<InspectionScreen> {
   final OilEntryService _service = OilEntryService();
 
   String medium = "Hydrauliköl";
 
   bool _isSaving = false;
 
-  final TextEditingController literController =
-      TextEditingController();
-
-  final TextEditingController commentController =
-      TextEditingController();
+  final TextEditingController literController = TextEditingController();
+  final TextEditingController commentController = TextEditingController();
 
   @override
   void dispose() {
@@ -85,17 +87,54 @@ class _OilEntryScreenState extends State<OilEntryScreen> {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.precision_manufacturing),
-              title: Text(widget.machine.name),
-              subtitle: Text(
-                "Kostenstelle ${widget.machine.costCenter}",
-              ),
-            ),
-          ),
+Column(
+children: [
 
-          const SizedBox(height: 20),
+  InspectionHeader(
+    machineName: widget.machine.name,
+    costCenter: widget.machine.costCenter,
+    progress: 0.25,
+  ),
+
+  InspectionInfoCard(
+    machine: widget.machine,
+  ),
+
+  QuantitySelector(
+    title: "Hydrauliköl",
+    controller: literController,
+    onMinus: () {},
+    onPlus: () {},
+  ),
+
+  QuantitySelector(
+    title: "Gleitbahnöl",
+    controller: TextEditingController(),
+    onMinus: () {},
+    onPlus: () {},
+  ),
+
+  NumberInputCard(
+    title: "Wasserzähler",
+    controller: TextEditingController(),
+  ),
+
+  NumberInputCard(
+    title: "Konzentration",
+    controller: TextEditingController(),
+    suffix: "%",
+  ),
+
+  RemarkCard(
+    controller: commentController,
+  ),
+
+  PrimaryButton(
+    text: "Kontrolle abschließen",
+    onPressed: _saveEntry,
+  ),
+],
+),
 
           DropdownButtonFormField<String>(
             initialValue: medium,

@@ -1,14 +1,12 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-
 import '../models/machine.dart';
 import '../services/machine_service.dart';
 import '../models/oil_entry.dart';
 import '../services/oil_entry_service.dart';
 import '../widgets/oil_history_list.dart';
 import 'edit_machine_screen.dart';
-import 'oil_entry_screen.dart';
+import 'inspection_screen.dart';
 
 class MachineDetailScreen extends StatefulWidget {
   final Machine machine;
@@ -70,9 +68,9 @@ class _MachineDetailScreenState extends State<MachineDetailScreen> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => OilEntryScreen(
-          machine: machine,
-        ),
+      builder: (_) => InspectionScreen(
+      machine: machine,
+),
       ),
     );
 
