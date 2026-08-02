@@ -15,55 +15,59 @@ class InspectionInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return FluidCard(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Maschinendaten",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+          _tile(
+            Icons.opacity,
+            "Hydrauliköl",
+            machine.hydraulicOil,
           ),
 
-          const SizedBox(height: 20),
+          const Divider(),
 
-          _row("Hydrauliköl", machine.hydraulicOil),
+          _tile(
+            Icons.settings,
+            "Gleitbahnöl",
+            machine.guidewayOil,
+          ),
 
           const Divider(),
 
-          _row("Gleitbahnöl", machine.guidewayOil),
+          _tile(
+            Icons.water_drop,
+            "Kühlschmierstoff",
+            machine.coolant,
+          ),
 
           const Divider(),
 
-          _row("Kühlschmierstoff", machine.coolant),
-
-          const Divider(),
-
-          _row(
+          _tile(
+            Icons.science,
             "Soll-Konzentration",
             "${machine.coolantConcentration.toStringAsFixed(1)} %",
-),
+          ),
         ],
       ),
     );
   }
 
-  Widget _row(String title, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          Text(value),
-        ],
+  Widget _tile(
+    IconData icon,
+    String title,
+    String value,
+  ) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: CircleAvatar(
+        radius: 22,
+        child: Icon(icon),
       ),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      subtitle: Text(value.isEmpty ? "-" : value),
     );
   }
 }

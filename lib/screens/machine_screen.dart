@@ -26,7 +26,7 @@ class _MachineScreenState extends State<MachineScreen> {
   void _loadMachines() {
   _machinesFuture = _machineRepository.getMachines();
   }
-  
+
   Future<void> _refresh() async {
     setState(() {
       _loadMachines();
@@ -41,10 +41,27 @@ class _MachineScreenState extends State<MachineScreen> {
         backgroundColor: Colors.indigo,
         foregroundColor: Colors.white,
       ),
-      body: FutureBuilder<List<Machine>>(
+      body: Column(
+  children: [
+    Padding(
+      padding: const EdgeInsets.all(16),
+      child: TextField(
+        decoration: InputDecoration(
+          hintText: "Maschine suchen...",
+          prefixIcon: const Icon(Icons.search),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+      ),
+    ),
+
+    Expanded(
+      child: FutureBuilder<List<Machine>>(
         future: _machinesFuture,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+          if (snapshot.connectionState ==
+              ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(),
             );
@@ -54,7 +71,6 @@ class _MachineScreenState extends State<MachineScreen> {
             return Center(
               child: Text(
                 "Fehler: ${snapshot.error}",
-                textAlign: TextAlign.center,
               ),
             );
           }
@@ -65,7 +81,6 @@ class _MachineScreenState extends State<MachineScreen> {
             return const Center(
               child: Text(
                 "Keine Maschinen vorhanden.",
-                style: TextStyle(fontSize: 18),
               ),
             );
           }
@@ -73,7 +88,6 @@ class _MachineScreenState extends State<MachineScreen> {
           return RefreshIndicator(
             onRefresh: _refresh,
             child: ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 8),
               itemCount: machines.length,
               itemBuilder: (context, index) {
                 final machine = machines[index];
@@ -90,9 +104,7 @@ class _MachineScreenState extends State<MachineScreen> {
                       ),
                     );
 
-                    if (mounted) {
-                      _refresh();
-                    }
+                    _refresh();
                   },
                 );
               },
@@ -100,6 +112,9 @@ class _MachineScreenState extends State<MachineScreen> {
           );
         },
       ),
+    ),
+  ],
+),
     );
   }
 }

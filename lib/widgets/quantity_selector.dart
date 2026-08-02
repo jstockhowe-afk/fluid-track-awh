@@ -29,32 +29,77 @@ class QuantitySelector extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 16),
+
+          const SizedBox(height: 18),
+
           Row(
             children: [
-              IconButton.filled(
-                onPressed: onMinus,
-                icon: const Icon(Icons.remove),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: TextField(
-                  controller: controller,
-                  textAlign: TextAlign.center,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
+              SizedBox(
+                width: 55,
+                height: 55,
+                child: ElevatedButton(
+                  onPressed: onMinus,
+                  style: ElevatedButton.styleFrom(
+                    shape: const CircleBorder(),
+                    padding: EdgeInsets.zero,
                   ),
-                  decoration: const InputDecoration(
-                    hintText: "0,0",
-                    suffixText: "L",
-                    border: OutlineInputBorder(),
+                  child: const Icon(Icons.remove),
+                ),
+              ),
+
+              const SizedBox(width: 16),
+
+              Expanded(
+                child: SizedBox(
+                  height: 56,
+                  child: TextField(
+                    controller: controller,
+                    textAlign: TextAlign.center,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      suffixText: "L",
+                    ),
                   ),
                 ),
               ),
+
+              const SizedBox(width: 16),
+
+              SizedBox(
+                width: 55,
+                height: 55,
+                child: ElevatedButton(
+                  onPressed: onPlus,
+                  style: ElevatedButton.styleFrom(
+                    shape: const CircleBorder(),
+                    padding: EdgeInsets.zero,
+                  ),
+                  child: const Icon(Icons.add),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 14),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FilledButton(
+                onPressed: onMinus,
+                child: const Text("-0,5 L"),
+              ),
               const SizedBox(width: 12),
-              IconButton.filled(
+              FilledButton(
                 onPressed: onPlus,
-                icon: const Icon(Icons.add),
+                child: const Text("+0,5 L"),
               ),
             ],
           ),

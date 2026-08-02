@@ -1,154 +1,160 @@
 import 'package:flutter/material.dart';
 
-import '../services/machine_service.dart';
-import '../services/oil_entry_service.dart';
+import '../theme/app_colors.dart';
+import '../widgets/fluid_card.dart';
 
-class DashboardScreen extends StatefulWidget {
+class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
-
-  @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
-}
-
-class _DashboardScreenState extends State<DashboardScreen> {
-  final MachineService _machineService = MachineService();
-  final OilEntryService _oilEntryService = OilEntryService();
-
-  int machineCount = 0;
-  int bookingCount = 0;
-  double litersToday = 0;
-  double litersMonth = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadDashboard();
-  }
-
-  Future<void> _loadDashboard() async {
-    final machines = await _machineService.getMachines();
-    final entries = await _oilEntryService.getAllEntries();
-
-    final now = DateTime.now();
-
-    double today = 0;
-    double month = 0;
-
-    for (final entry in entries) {
-      if (entry.dateTime.year == now.year &&
-          entry.dateTime.month == now.month) {
-        month += entry.liters;
-
-        if (entry.dateTime.day == now.day) {
-          today += entry.liters;
-        }
-      }
-    }
-
-    if (!mounted) return;
-
-    setState(() {
-      machineCount = machines.length;
-      bookingCount = entries.length;
-      litersToday = today;
-      litersMonth = month;
-    });
-  }
-
-  Widget buildCard(
-    String title,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              size: 38,
-              color: color,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 5),
-            Text(title),
-          ],
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Fluid Track AWH"),
+        title: const Text("Dashboard"),
       ),
-      body: RefreshIndicator(
-        onRefresh: _loadDashboard,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: buildCard(
-                    "Maschinen",
-                    "$machineCount",
-                    Icons.precision_manufacturing,
-                    Colors.blue,
-                  ),
-                ),
-                Expanded(
-                  child: buildCard(
-                    "Buchungen",
-                    "$bookingCount",
-                    Icons.receipt_long,
-                    Colors.green,
-                  ),
-                ),
-              ],
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          const Text(
+            "Guten Morgen",
+            style: TextStyle(
+              fontSize: 18,
             ),
-            Row(
-              children: [
-                Expanded(
-                  child: buildCard(
-                    "Heute",
-                    "${litersToday.toStringAsFixed(1)} L",
-                    Icons.today,
-                    Colors.orange,
-                  ),
-                ),
-                Expanded(
-                  child: buildCard(
-                    "Monat",
-                    "${litersMonth.toStringAsFixed(1)} L",
-                    Icons.calendar_month,
-                    Colors.purple,
-                  ),
-                ),
-              ],
+          ),
+
+          const SizedBox(height: 4),
+
+          const Text(
+            "Julian",
+            style: TextStyle(
+              fontSize: 34,
+              fontWeight: FontWeight.bold,
             ),
-            const SizedBox(height: 20),
-            const Card(
-              child: ListTile(
-                leading: Icon(Icons.info_outline),
-                title: Text("Willkommen bei Fluid Track AWH"),
-                subtitle: Text(
-                  "Die Kennzahlen werden automatisch aus der Datenbank geladen.",
+          ),
+
+          const SizedBox(height: 24),
+
+          Row(
+            children: [
+              Expanded(
+                child: FluidCard(
+                  child: Column(
+                    children: const [
+                      Icon(
+                        Icons.check_circle,
+                        color: Colors.green,
+                        size: 38,
+                      ),
+                      SizedBox(height: 12),
+                      Text(
+                        "5",
+                        style: TextStyle(
+                          fontSize: 34,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text("kontrolliert"),
+                    ],
+                  ),
                 ),
               ),
+
+              const SizedBox(width: 12),
+
+              Expanded(
+                child: FluidCard(
+                  child: Column(
+                    children: const [
+                      Icon(
+                        Icons.schedule,
+                        color: Colors.orange,
+                        size: 38,
+                      ),
+                      SizedBox(height: 12),
+                      Text(
+                        "13",
+                        style: TextStyle(
+                          fontSize: 34,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text("offen"),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 22),
+
+          const Text(
+            "Lagerbestand",
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
             ),
-          ],
+          ),
+
+          const SizedBox(height: 12),
+
+          FluidCard(
+            child: Column(
+              children: [
+                _oilRow("HLP32", "420 l", Colors.blue),
+                Divider(),
+                _oilRow("HLP46", "820 l", Colors.blue),
+                Divider(),
+                _oilRow("XG68", "95 l", Colors.orange),
+                Divider(),
+                _oilRow("HLP22", "80 l", Colors.grey),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          SizedBox(
+            height: 60,
+            child: ElevatedButton.icon(
+              onPressed: () {},
+              icon: const Icon(Icons.qr_code_scanner),
+              label: const Text(
+                "QR-Code scannen",
+                style: TextStyle(fontSize: 20),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Widget _oilRow(
+    String oil,
+    String amount,
+    Color color,
+  ) {
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundColor: color,
+        child: const Icon(
+          Icons.opacity,
+          color: Colors.white,
+        ),
+      ),
+      title: Text(
+        oil,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      trailing: Text(
+        amount,
+        style: TextStyle(
+          color: AppColors.primary,
+          fontWeight: FontWeight.bold,
+          fontSize: 18,
         ),
       ),
     );

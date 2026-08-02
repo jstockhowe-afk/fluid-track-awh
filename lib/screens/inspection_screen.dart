@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import '../widgets/inspection_header.dart';
-import '../widgets/inspection_info_card.dart';
+
 import '../models/machine.dart';
 import '../models/oil_entry.dart';
 import '../services/oil_entry_service.dart';
-import '../widgets/quantity_selector.dart';
+
+import '../widgets/inspection_header.dart';
+import '../widgets/inspection_info_card.dart';
 import '../widgets/number_input_card.dart';
-import '../widgets/remark_card.dart';
 import '../widgets/primary_button.dart';
+import '../widgets/quantity_selector.dart';
+import '../widgets/remark_card.dart';
 
 class InspectionScreen extends StatefulWidget {
   final Machine machine;
@@ -24,44 +26,73 @@ class InspectionScreen extends StatefulWidget {
 class _InspectionScreenState extends State<InspectionScreen> {
   final OilEntryService _service = OilEntryService();
 
-  String medium = "Hydrauliköl";
-
   bool _isSaving = false;
 
-  final TextEditingController literController = TextEditingController();
-  final TextEditingController commentController = TextEditingController();
+  final TextEditingController hydraulicController =
+      TextEditingController(text: "0.0");
+
+  final TextEditingController guidewayController =
+      TextEditingController(text: "0.0");
+
+  final TextEditingController waterController =
+      TextEditingController();
+
+  final TextEditingController concentrationController =
+      TextEditingController();
+
+  final TextEditingController commentController =
+      TextEditingController();
 
   @override
   void dispose() {
-    literController.dispose();
+    hydraulicController.dispose();
+    guidewayController.dispose();
+    waterController.dispose();
+    concentrationController.dispose();
     commentController.dispose();
     super.dispose();
   }
 
+  double get hydraulicValue =>
+      double.tryParse(
+            hydraulicController.text.replaceAll(",", "."),
+          ) ??
+      0;
+
+  double get guidewayValue =>
+      double.tryParse(
+            guidewayController.text.replaceAll(",", "."),
+          ) ??
+      0;
+
+  void _changeHydraulic(double value) {
+    final newValue = (hydraulicValue + value).clamp(0.0, 9999.0);
+
+    setState(() {
+      hydraulicController.text =
+          newValue.toStringAsFixed(1);
+    });
+  }
+
+  void _changeGuideway(double value) {
+    final newValue = (guidewayValue + value).clamp(0.0, 9999.0);
+
+    setState(() {
+      guidewayController.text =
+          newValue.toStringAsFixed(1);
+    });
+  }
+
   Future<void> _saveEntry() async {
-    FocusScope.of(context).unfocus();
-
-    final double? liters =
-        double.tryParse(literController.text.replaceAll(",", "."));
-
-    if (liters == null || liters <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Bitte eine gültige Literzahl eingeben."),
-        ),
-      );
-      return;
-    }
-
     setState(() {
       _isSaving = true;
     });
 
     final entry = OilEntry(
       machineId: widget.machine.id,
-      medium: medium,
-      liters: liters,
-      comment: commentController.text.trim(),
+      medium: "Kontrolle",
+      liters: hydraulicValue,
+      comment: commentController.text,
       dateTime: DateTime.now(),
     );
 
@@ -69,148 +100,62 @@ class _InspectionScreenState extends State<InspectionScreen> {
 
     if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Buchung erfolgreich gespeichert."),
-      ),
-    );
-
     Navigator.pop(context, true);
-  }
+    }
 
-  @override
+      @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Öl nachfüllen"),
+        title: const Text("Maschinenkontrolle"),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.only(bottom: 24),
         children: [
-Column(
-children: [
+          InspectionHeader(
+           machine: widget.machine,
+           progress: 0.25,
+          ),
+        
 
-  InspectionHeader(
-    machineName: widget.machine.name,
-    costCenter: widget.machine.costCenter,
-    progress: 0.25,
-  ),
-
-  InspectionInfoCard(
-    machine: widget.machine,
-  ),
-
-  QuantitySelector(
-    title: "Hydrauliköl",
-    controller: literController,
-    onMinus: () {},
-    onPlus: () {},
-  ),
-
-  QuantitySelector(
-    title: "Gleitbahnöl",
-    controller: TextEditingController(),
-    onMinus: () {},
-    onPlus: () {},
-  ),
-
-  NumberInputCard(
-    title: "Wasserzähler",
-    controller: TextEditingController(),
-  ),
-
-  NumberInputCard(
-    title: "Konzentration",
-    controller: TextEditingController(),
-    suffix: "%",
-  ),
-
-  RemarkCard(
-    controller: commentController,
-  ),
-
-  PrimaryButton(
-    text: "Kontrolle abschließen",
-    onPressed: _saveEntry,
-  ),
-],
-),
-
-          DropdownButtonFormField<String>(
-            initialValue: medium,
-            decoration: const InputDecoration(
-              labelText: "Medium",
-              border: OutlineInputBorder(),
-            ),
-            items: const [
-              DropdownMenuItem(
-                value: "Hydrauliköl",
-                child: Text("Hydrauliköl"),
-              ),
-              DropdownMenuItem(
-                value: "Gleitbahnöl",
-                child: Text("Gleitbahnöl"),
-              ),
-              DropdownMenuItem(
-                value: "Kühlschmierstoff",
-                child: Text("Kühlschmierstoff"),
-              ),
-            ],
-            onChanged: (value) {
-              if (value == null) return;
-              setState(() {
-                medium = value;
-              });
-            },
+          InspectionInfoCard(
+            machine: widget.machine,
           ),
 
-          const SizedBox(height: 20),
-
-          TextField(
-            controller: literController,
-            keyboardType: const TextInputType.numberWithOptions(
-              decimal: true,
-            ),
-            decoration: const InputDecoration(
-              labelText: "Liter",
-              border: OutlineInputBorder(),
-              hintText: "z. B. 5,0",
-            ),
+          QuantitySelector(
+            title: "Hydrauliköl",
+            controller: hydraulicController,
+            onMinus: () => _changeHydraulic(-0.5),
+            onPlus: () => _changeHydraulic(0.5),
           ),
 
-          const SizedBox(height: 20),
+          QuantitySelector(
+            title: "Gleitbahnöl",
+            controller: guidewayController,
+            onMinus: () => _changeGuideway(-0.5),
+            onPlus: () => _changeGuideway(0.5),
+          ),
 
-          TextField(
+          NumberInputCard(
+            title: "Wasserzähler",
+            controller: waterController,
+          ),
+
+          NumberInputCard(
+            title: "Konzentration",
+            controller: concentrationController,
+            suffix: "%",
+          ),
+
+          RemarkCard(
             controller: commentController,
-            maxLines: 3,
-            decoration: const InputDecoration(
-              labelText: "Kommentar (optional)",
-              border: OutlineInputBorder(),
-            ),
           ),
 
-          const SizedBox(height: 30),
-
-          SizedBox(
-            height: 55,
-            child: ElevatedButton.icon(
-              onPressed: _isSaving ? null : _saveEntry,
-              icon: _isSaving
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Icon(Icons.save),
-              label: Text(
-                _isSaving
-                    ? "Speichern..."
-                    : "Buchung speichern",
-              ),
-            ),
+          PrimaryButton(
+            text: _isSaving
+                ? "Speichern..."
+                : "Kontrolle abschließen",
+            onPressed: _isSaving ? () {} : _saveEntry,
           ),
         ],
       ),

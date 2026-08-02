@@ -30,8 +30,8 @@ class RemarkCard extends StatelessWidget {
             controller: controller,
             maxLines: 4,
             decoration: const InputDecoration(
-              hintText: "Bemerkung eingeben (optional)",
               border: OutlineInputBorder(),
+              hintText: "Bemerkung eingeben...",
             ),
           ),
         ],
