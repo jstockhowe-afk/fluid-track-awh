@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import '../models/machine.dart';
 import '../services/machine_service.dart';
-import '../models/oil_entry.dart';
-import '../services/oil_entry_service.dart';
+import '../models/inspection_entry.dart';
+import '../services/inspection_service.dart';
 import '../widgets/oil_history_list.dart';
 import 'edit_machine_screen.dart';
 import 'inspection_screen.dart';
@@ -22,11 +22,11 @@ class MachineDetailScreen extends StatefulWidget {
 
 class _MachineDetailScreenState extends State<MachineDetailScreen> {
   final MachineService _machineService = MachineService();
-  final OilEntryService _oilEntryService = OilEntryService();
+  final InspectionService _inspectionService = InspectionService();
 
   late Machine machine;
 
-  List<OilEntry> history = [];
+  List<InspectionEntry> history = [];
 
   @override
   void initState() {
@@ -42,7 +42,7 @@ class _MachineDetailScreenState extends State<MachineDetailScreen> {
       machine = updated;
     }
 
-    history = await _oilEntryService.getEntriesForMachine(machine.id);
+    history = await _inspectionService.getMachineInspections(machine.id);
 
     if (mounted) {
       setState(() {});
@@ -110,6 +110,88 @@ class _MachineDetailScreenState extends State<MachineDetailScreen> {
 
           const SizedBox(height: 20),
 
+Card(
+  child: Padding(
+    padding: const EdgeInsets.all(16),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Betriebsstoffe",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+
+const SizedBox(height: 20),
+
+Card(
+  child: Padding(
+    padding: const EdgeInsets.all(16),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Maschineninformationen",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        ListTile(
+          leading: const Icon(Icons.qr_code),
+          title: const Text("QR-Code"),
+          trailing: Text(machine.qrCode),
+        ),
+
+        ListTile(
+          leading: const Icon(Icons.badge),
+          title: const Text("Maschinen-ID"),
+          trailing: Text(machine.id),
+        ),
+
+        ListTile(
+          leading: const Icon(Icons.description),
+          title: const Text("Notizen"),
+          subtitle: Text(
+            machine.notes.isEmpty
+                ? "Keine Notizen vorhanden"
+                : machine.notes,
+          ),
+        ),
+      ],
+    ),
+  ),
+),
+
+        const SizedBox(height: 12),
+
+        ListTile(
+          leading: const Icon(Icons.oil_barrel),
+          title: const Text("Hydrauliköl"),
+          trailing: Text(machine.hydraulicOil),
+        ),
+
+        ListTile(
+          leading: const Icon(Icons.settings),
+          title: const Text("Gleitbahnöl"),
+          trailing: Text(machine.guidewayOil),
+        ),
+
+        ListTile(
+          leading: const Icon(Icons.water_drop),
+          title: const Text("Kühlschmierstoff"),
+          trailing: Text(machine.coolant),
+        ),
+      ],
+    ),
+  ),
+),
+
           Card(
             child: ListTile(
               leading: const Icon(Icons.precision_manufacturing),
@@ -164,6 +246,40 @@ class _MachineDetailScreenState extends State<MachineDetailScreen> {
 
           const SizedBox(height: 30),
 
+          Card(
+  child: Padding(
+    padding: const EdgeInsets.all(16),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Tankdaten",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        ListTile(
+          leading: const Icon(Icons.oil_barrel),
+          title: const Text("Hydrauliktank"),
+          trailing: Text("${machine.hydraulicTank} L"),
+        ),
+
+        ListTile(
+          leading: const Icon(Icons.water_drop),
+          title: const Text("KSS-Tank"),
+          trailing: Text("${machine.coolantTank} L"),
+        ),
+      ],
+    ),
+  ),
+),
+
+        
+
           const Align(
             alignment: Alignment.centerLeft,
             child: Text(
@@ -174,6 +290,43 @@ class _MachineDetailScreenState extends State<MachineDetailScreen> {
               ),
             ),
           ),
+
+const SizedBox(height: 20),
+
+Card(
+  color: Colors.indigo.shade50,
+  child: Padding(
+    padding: const EdgeInsets.all(16),
+    child: Row(
+      children: [
+        const Icon(
+          Icons.analytics,
+          color: Colors.indigo,
+          size: 36,
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Kontrollen",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                "${history.length} Einträge vorhanden",
+                style: const TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  ),
+),
 
           const SizedBox(height: 10),
 

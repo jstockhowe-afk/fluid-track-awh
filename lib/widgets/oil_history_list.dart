@@ -1,41 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../models/oil_entry.dart';
+import '../models/inspection_entry.dart';
 
 class OilHistoryList extends StatelessWidget {
-  final List<OilEntry> entries;
+  final List<InspectionEntry> entries;
 
   const OilHistoryList({
     super.key,
     required this.entries,
   });
-
-  Color _mediumColor(String medium) {
-    switch (medium) {
-      case "Hydrauliköl":
-        return Colors.blue;
-      case "Gleitbahnöl":
-        return Colors.orange;
-      case "Kühlschmierstoff":
-        return Colors.green;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  IconData _mediumIcon(String medium) {
-    switch (medium) {
-      case "Hydrauliköl":
-        return Icons.oil_barrel;
-      case "Gleitbahnöl":
-        return Icons.opacity;
-      case "Kühlschmierstoff":
-        return Icons.water_drop;
-      default:
-        return Icons.inventory_2;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,9 +17,9 @@ class OilHistoryList extends StatelessWidget {
       return const Card(
         child: ListTile(
           leading: Icon(Icons.history),
-          title: Text("Noch keine Buchungen"),
+          title: Text("Noch keine Kontrollen"),
           subtitle: Text(
-            "Für diese Maschine wurden noch keine Nachfüllungen erfasst.",
+            "Für diese Maschine wurden noch keine Kontrollen gespeichert.",
           ),
         ),
       );
@@ -66,15 +40,17 @@ class OilHistoryList extends StatelessWidget {
           ),
           child: ListTile(
             contentPadding: const EdgeInsets.all(14),
-            leading: CircleAvatar(
-              backgroundColor: _mediumColor(entry.medium),
+            leading: const CircleAvatar(
+              backgroundColor: Colors.indigo,
               child: Icon(
-                _mediumIcon(entry.medium),
+                Icons.fact_check,
                 color: Colors.white,
               ),
             ),
             title: Text(
-              entry.medium,
+              DateFormat(
+                'dd.MM.yyyy • HH:mm',
+              ).format(entry.dateTime),
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
               ),
@@ -85,18 +61,13 @@ class OilHistoryList extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Menge: ${entry.liters.toStringAsFixed(1)} Liter",
-                  ),
-                  const SizedBox(height: 4),
+                      "Hydrauliköl: ${entry.hydraulicOil.toStringAsFixed(1)} L"),
                   Text(
-                    DateFormat(
-                      'dd.MM.yyyy • HH:mm',
-                    ).format(entry.dateTime),
-                    style: TextStyle(
-                      color: Colors.grey.shade600,
-                      fontSize: 12,
-                    ),
-                  ),
+                      "Gleitbahnöl: ${entry.guidewayOil.toStringAsFixed(1)} L"),
+                  Text(
+                      "Wasserzähler: ${entry.waterMeter.toStringAsFixed(0)}"),
+                  Text(
+                      "Konzentration: ${entry.concentration.toStringAsFixed(1)} %"),
                   if (entry.comment.isNotEmpty) ...[
                     const SizedBox(height: 8),
                     Text(

@@ -59,59 +59,71 @@ class MachineCard extends StatelessWidget {
                   crossAxisAlignment:
                       CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      machine.name,
-                      style: const TextStyle(
-                        fontSize: 21,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+  Text(
+    machine.name,
+    style: const TextStyle(
+      fontSize: 21,
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+const SizedBox(height: 6),
 
-                    const SizedBox(height: 8),
+Row(
+  children: [
+    const Icon(
+      Icons.qr_code,
+      size: 16,
+      color: Colors.grey,
+    ),
+    const SizedBox(width: 4),
+    Text(
+      machine.id,
+      style: TextStyle(
+        color: Colors.grey.shade700,
+        fontWeight: FontWeight.w600,
+      ),
+    ),
+  ],
+),
+  const SizedBox(height: 4),
 
-                    Text(
-                      "Kostenstelle ${machine.costCenter}",
-                    ),
 
-                    const SizedBox(height: 12),
 
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.opacity,
-                          size: 18,
-                          color: Colors.blue,
-                        ),
+  const SizedBox(height: 8),
 
-                        const SizedBox(width: 6),
+  Text(
+    "Kostenstelle ${machine.costCenter}",
+    
+  ),
+const SizedBox(height: 10),
 
-                        Expanded(
-                          child: Text(
-                            machine.hydraulicOil,
-                          ),
-                        ),
-                      ],
-                    ),
+Wrap(
+  spacing: 6,
+  runSpacing: 6,
+  children: [
+    Chip(
+      avatar: const Icon(
+        Icons.oil_barrel,
+        size: 16,
+        color: Colors.blue,
+      ),
+      label: Text(machine.hydraulicOil),
+    ),
+    Chip(
+      avatar: const Icon(
+        Icons.settings,
+        size: 16,
+        color: Colors.orange,
+      ),
+      label: Text(machine.guidewayOil),
+    ),
+  ],
+),
 
-                    const SizedBox(height: 6),
+const SizedBox(height: 12),
+  const SizedBox(height: 12),
 
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.settings,
-                          size: 18,
-                          color: Colors.orange,
-                        ),
-
-                        const SizedBox(width: 6),
-
-                        Expanded(
-                          child: Text(
-                            machine.guidewayOil,
-                          ),
-                        ),
-                      ],
-                    ),
+                   
                   ],
                 ),
               ),

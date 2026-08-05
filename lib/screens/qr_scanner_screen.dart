@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-
+import '../repositories/machine_repository.dart';
 import '../models/machine.dart';
-import '../services/machine_service.dart';
-import 'machine_detail_screen.dart';
+import 'inspection_screen.dart';
 
 class QrScannerScreen extends StatefulWidget {
   const QrScannerScreen({super.key});
@@ -13,42 +12,57 @@ class QrScannerScreen extends StatefulWidget {
 }
 
 class _QrScannerScreenState extends State<QrScannerScreen> {
-  final MachineService _machineService = MachineService();
+  final MobileScannerController controller = MobileScannerController();
 
-  bool _handled = false;
+  final MachineRepository repository = MachineRepository();
 
-  Future<void> _handleQrCode(String qrCode) async {
+  bool _busy = false;
+
+  Future<void> _onDetect(BarcodeCapture capture) async {
+    if (_busy) return;
+
+    final barcode = capture.barcodes.firstOrNull;
+
+    if (barcode == null) return;
+
+    final code = barcode.rawValue;
+
+    if (code == null) return;
+
+    _busy = true;
+
     final Machine? machine =
-        await _machineService.getMachineByQrCode(qrCode);
+        await repository.getMachineByQrCode(code);
 
     if (!mounted) return;
 
     if (machine == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Keine Maschine für '$qrCode' gefunden."),
+          content: Text("Maschine nicht gefunden\n$code"),
         ),
       );
 
-      Future.delayed(const Duration(seconds: 2), () {
-        if (mounted) {
-          setState(() {
-            _handled = false;
-          });
-        }
-      });
-
+      _busy = false;
       return;
     }
 
-    await Navigator.pushReplacement(
+    await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => MachineDetailScreen(
+        builder: (_) => InspectionScreen(
           machine: machine,
         ),
       ),
     );
+
+    _busy = false;
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -57,20 +71,46 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
       appBar: AppBar(
         title: const Text("QR-Code scannen"),
       ),
-      body: MobileScanner(
-        onDetect: (capture) async {
-          if (_handled) return;
+      body: Stack(
+        children: [
+          MobileScanner(
+            controller: controller,
+            onDetect: _onDetect,
+          ),
 
-          final Barcode barcode = capture.barcodes.first;
+          Center(
+            child: Container(
+              width: 260,
+              height: 260,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Colors.white,
+                  width: 4,
+                ),
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+          ),
 
-          final String? value = barcode.rawValue;
-
-          if (value == null || value.isEmpty) return;
-
-          _handled = true;
-
-          await _handleQrCode(value);
-        },
+          const Positioned(
+            bottom: 30,
+            left: 20,
+            right: 20,
+            child: Card(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Text(
+                  "QR-Code der Maschine scannen",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

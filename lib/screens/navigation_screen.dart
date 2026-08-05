@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'oil_stock_screen.dart';
 import 'dashboard_screen.dart';
+import 'history_screen.dart';
 import 'machine_screen.dart';
 import 'qr_scanner_screen.dart';
 
@@ -14,25 +15,13 @@ class NavigationScreen extends StatefulWidget {
 class _NavigationScreenState extends State<NavigationScreen> {
   int _selectedIndex = 0;
 
-  final List<Widget> _screens = const [
-    DashboardScreen(),
-    MachineScreen(),
-    QrScannerScreen(),
-    Center(
-      child: Text(
-        "Auswertungen\n\nfolgen in Version 0.4",
-        textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 22),
-      ),
-    ),
-    Center(
-      child: Text(
-        "Einstellungen\n\nfolgen in Version 0.4",
-        textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 22),
-      ),
-    ),
-  ];
+  final List<Widget> _screens = [
+  const DashboardScreen(),
+  const MachineScreen(),
+  const QrScannerScreen(),
+  const HistoryScreen(),
+  OilStockScreen(),
+];
 
   @override
   Widget build(BuildContext context) {
@@ -65,12 +54,12 @@ class _NavigationScreenState extends State<NavigationScreen> {
             label: "Scanner",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
-            label: "Auswertung",
+            icon: Icon(Icons.history),
+            label: "Historie",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: "Einstellungen",
+             icon: Icon(Icons.inventory_2),
+             label: "Lager",
           ),
         ],
       ),

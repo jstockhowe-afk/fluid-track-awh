@@ -1,10 +1,55 @@
 import 'package:flutter/material.dart';
-
+import '../services/inspection_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/fluid_card.dart';
+import '../data/machine_data.dart';
+import 'qr_scanner_screen.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  final InspectionService _service = InspectionService();
+
+  int inspectionsToday = 0;
+  double hydraulicToday = 0;
+  int totalMachines = machines.length;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDashboard();
+  }
+
+  Future<void> _loadDashboard() async {
+    final entries = await _service.getAllInspections();
+
+    final now = DateTime.now();
+
+    int count = 0;
+    double liters = 0;
+
+    for (final entry in entries) {
+      if (entry.dateTime.year == now.year &&
+          entry.dateTime.month == now.month &&
+          entry.dateTime.day == now.day) {
+        count++;
+        liters += entry.hydraulicOil;
+      }
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+  inspectionsToday = count;
+  hydraulicToday = liters;
+});
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -15,8 +60,12 @@ class DashboardScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const Text(
-            "Guten Morgen",
+          Text(
+  DateTime.now().hour < 12
+      ? "Guten Morgen"
+      : DateTime.now().hour < 18
+          ? "Guten Tag"
+          : "Guten Abend",
             style: TextStyle(
               fontSize: 18,
             ),
@@ -39,7 +88,7 @@ class DashboardScreen extends StatelessWidget {
               Expanded(
                 child: FluidCard(
                   child: Column(
-                    children: const [
+                    children: [
                       Icon(
                         Icons.check_circle,
                         color: Colors.green,
@@ -47,13 +96,23 @@ class DashboardScreen extends StatelessWidget {
                       ),
                       SizedBox(height: 12),
                       Text(
-                        "5",
+                         inspectionsToday.toString(),
                         style: TextStyle(
                           fontSize: 34,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text("kontrolliert"),
+                      const SizedBox(height: 8),
+
+Text(
+  "${hydraulicToday.toStringAsFixed(1)} L",
+  style: const TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.bold,
+    color: Colors.blue,
+  ),
+),
                     ],
                   ),
                 ),
@@ -64,21 +123,26 @@ class DashboardScreen extends StatelessWidget {
               Expanded(
                 child: FluidCard(
                   child: Column(
-                    children: const [
+                    children: [
                       Icon(
                         Icons.schedule,
                         color: Colors.orange,
                         size: 38,
                       ),
                       SizedBox(height: 12),
-                      Text(
-                        "13",
-                        style: TextStyle(
-                          fontSize: 34,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text("offen"),
+                     Text(
+  (totalMachines - inspectionsToday)
+      .clamp(0, totalMachines)
+      .toString(),
+  style: const TextStyle(
+    fontSize: 34,
+    fontWeight: FontWeight.bold,
+  ),
+),
+
+Text(
+  "$totalMachines Maschinen",
+),
                     ],
                   ),
                 ),
@@ -117,7 +181,18 @@ class DashboardScreen extends StatelessWidget {
           SizedBox(
             height: 60,
             child: ElevatedButton.icon(
-              onPressed: () {},
+             onPressed: () async {
+  await Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => const QrScannerScreen(),
+    ),
+  );
+
+  if (!mounted) return;
+
+  _loadDashboard();
+},
               icon: const Icon(Icons.qr_code_scanner),
               label: const Text(
                 "QR-Code scannen",

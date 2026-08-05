@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-
+import '../services/oil_stock_service.dart';
 import '../models/machine.dart';
-import '../models/oil_entry.dart';
-import '../services/oil_entry_service.dart';
-
+import '../models/inspection_entry.dart';
+import '../services/inspection_service.dart';
 import '../widgets/inspection_header.dart';
 import '../widgets/inspection_info_card.dart';
 import '../widgets/number_input_card.dart';
@@ -24,7 +23,8 @@ class InspectionScreen extends StatefulWidget {
 }
 
 class _InspectionScreenState extends State<InspectionScreen> {
-  final OilEntryService _service = OilEntryService();
+  final InspectionService _service = InspectionService();
+  final OilStockService _stockService = OilStockService();
 
   bool _isSaving = false;
 
@@ -88,19 +88,51 @@ class _InspectionScreenState extends State<InspectionScreen> {
       _isSaving = true;
     });
 
-    final entry = OilEntry(
-      machineId: widget.machine.id,
-      medium: "Kontrolle",
-      liters: hydraulicValue,
-      comment: commentController.text,
-      dateTime: DateTime.now(),
-    );
+    final entry = InspectionEntry(
+     machineId: widget.machine.id,
+     hydraulicOil: hydraulicValue,
+     guidewayOil: guidewayValue,
+     waterMeter: double.tryParse(
+        waterController.text.replaceAll(",", "."),
+      ) ??
+      0,
+  concentration: double.tryParse(
+        concentrationController.text.replaceAll(",", "."),
+      ) ??
+      0,
+  comment: commentController.text.trim(),
+  dateTime: DateTime.now(),
+);
 
-    await _service.insertEntry(entry);
+await _service.insertInspection(entry);
+if (hydraulicValue > 0) {
+  _stockService.removeOil(
+    widget.machine.hydraulicOil,
+    hydraulicValue,
+  );
+}
 
+if (guidewayValue > 0) {
+  _stockService.removeOil(
+    widget.machine.guidewayOil,
+    guidewayValue,
+  );
+}
     if (!mounted) return;
 
-    Navigator.pop(context, true);
+ScaffoldMessenger.of(context).showSnackBar(
+  const SnackBar(
+    content: Text("Kontrolle erfolgreich gespeichert"),
+  ),
+);
+
+Navigator.pop(context, true);
+
+if (mounted) {
+  setState(() {
+    _isSaving = false;
+  });
+}
     }
 
       @override
@@ -147,7 +179,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
             suffix: "%",
           ),
 
-          RemarkCard(
+                    RemarkCard(
             controller: commentController,
           ),
 
@@ -155,7 +187,11 @@ class _InspectionScreenState extends State<InspectionScreen> {
             text: _isSaving
                 ? "Speichern..."
                 : "Kontrolle abschließen",
-            onPressed: _isSaving ? () {} : _saveEntry,
+            onPressed: _isSaving
+                ? () {}
+                : () async {
+                await _saveEntry();
+                  },
           ),
         ],
       ),
